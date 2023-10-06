@@ -14,7 +14,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddResiliencePipeline("timeout", (builder, context) =>
 {
-    _ = builder.AddTimeout(new TimeoutStrategyOptions
+    builder.AddTimeout(new TimeoutStrategyOptions
     {
         Timeout = TimeSpan.FromSeconds(2),
         OnTimeout = args =>
@@ -28,7 +28,7 @@ builder.Services.AddResiliencePipeline("timeout", (builder, context) =>
 
 builder.Services.AddResiliencePipeline<string, HttpResponseMessage>("http", (builder, context) =>
 {
-    _ = builder.AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+    builder.AddRetry(new RetryStrategyOptions<HttpResponseMessage>
     {
         MaxRetryAttempts = 3,
         ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
@@ -57,15 +57,14 @@ builder.Services.AddHttpClient("http")
     .AddHttpMessageHandler<TransientErrorDelegatingHandler>();
 
 var app = builder.Build();
+app.UseHttpsRedirection();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    _ = app.UseSwagger();
-    _ = app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
 
 var summaries = new[]
 {
